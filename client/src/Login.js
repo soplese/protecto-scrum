@@ -8,6 +8,7 @@ function Login({ setLogin }) {
   const [mensaje, setMensaje] = useState("");
 
   const API = process.env.REACT_APP_API_URL;
+  console.log("API URL:", API);
 
   const entrar = async () => {
     if (usuario.trim() === "" || password.trim() === "") {
@@ -29,7 +30,9 @@ function Login({ setLogin }) {
       }
     } catch (error) {
       setMensaje("Error al conectar con el servidor");
-      console.log(error);
+      console.log("Error completo:", error);
+      console.log("Respuesta del servidor:", error.response);
+      console.log("Mensaje:", error.message);
     }
   };
 
