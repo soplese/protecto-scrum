@@ -12,54 +12,79 @@ app.get("/", (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  const { usuario, password } = req.body;
+  try {
+    const { usuario, password } = req.body;
 
-  const result = await pool.query(
-    "SELECT * FROM usuarios WHERE usuario=$1 AND password=$2",
-    [usuario, password]
-  );
+    const result = await pool.query(
+      "SELECT * FROM usuarios WHERE usuario = $1 AND password = $2",
+      [usuario, password]
+    );
 
-  if (result.rows.length > 0) {
-    res.json({ login: true });
-  } else {
-    res.json({ login: false });
+    if (result.rows.length > 0) {
+      res.json({ login: true, usuario: result.rows[0] });
+    } else {
+      res.json({ login: false });
+    }
+  } catch (error) {
+    console.error("Error en login:", error);
+    res.status(500).json({ error: "Error en el servidor" });
   }
 });
 
 app.get("/productos", async (req, res) => {
-  const result = await pool.query("SELECT * FROM productos");
-  res.json(result.rows);
+  try {
+    const result = await pool.query("SELECT * FROM productos");
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    res.status(500).json({ error: "Error al obtener productos" });
+  }
 });
 
 app.post("/productos", async (req, res) => {
-  const { nombre, precio } = req.body;
+  try {
+    const { nombre, precio } = req.body;
 
-  await pool.query(
-    "INSERT INTO productos(nombre,precio) VALUES($1,$2)",
-    [nombre, precio]
-  );
+    await pool.query(
+      "INSERT INTO productos(nombre, precio) VALUES($1, $2)",
+      [nombre, precio]
+    );
 
-  res.json("Producto creado");
+    res.json({ mensaje: "Producto creado" });
+  } catch (error) {
+    console.error("Error al crear producto:", error);
+    res.status(500).json({ error: "Error al crear producto" });
+  }
 });
 
 app.put("/productos/:id", async (req, res) => {
-  const { id } = req.params;
-  const { nombre, precio } = req.body;
+  try {
+    const { id } = req.params;
+    const { nombre, precio } = req.body;
 
-  await pool.query(
-    "UPDATE productos SET nombre=$1,precio=$2 WHERE id=$3",
-    [nombre, precio, id]
-  );
+    await pool.query(
+      "UPDATE productos SET nombre = $1, precio = $2 WHERE id = $3",
+      [nombre, precio, id]
+    );
 
-  res.json("Producto actualizado");
+    res.json({ mensaje: "Producto actualizado" });
+  } catch (error) {
+    console.error("Error al actualizar producto:", error);
+    res.status(500).json({ error: "Error al actualizar producto" });
+  }
 });
 
 app.delete("/productos/:id", async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  await pool.query("DELETE FROM productos WHERE id=$1", [id]);
+    await pool.query("DELETE FROM productos WHERE id = $1", [id]);
 
-  res.json("Producto eliminado");
+    res.json({ mensaje: "Producto eliminado" });
+  } catch (error) {
+    console.error("Error al eliminar producto:", error);
+    res.status(500).json({ error: "Error al eliminar producto" });
+  }
 });
 
 const PORT = process.env.PORT || 3001;
